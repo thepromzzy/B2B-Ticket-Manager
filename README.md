@@ -5,7 +5,7 @@ No backend. No database. No installation. Just open and use.
 
 ---
 
-## 🚀 What It Does
+## What It Does
 
 **B2B Ticket Manager** is a **complete support ticketing dashboard** for businesses managing customer issues. It lets your team:
 
@@ -19,7 +19,7 @@ No backend. No database. No installation. Just open and use.
 
 ---
 
-## 🎯 Key Benefits
+## Key Benefits
 
 | Benefit                | Why It Matters                                                                             |
 | ---------------------- | ------------------------------------------------------------------------------------------ |
@@ -33,7 +33,7 @@ No backend. No database. No installation. Just open and use.
 
 ---
 
-## ✨ Features
+## Features
 
 ### Authentication
 
@@ -66,7 +66,7 @@ No backend. No database. No installation. Just open and use.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **HTML5** – Structure
 - **Tailwind CSS** – Styling (via CDN)
@@ -77,5 +77,3 @@ No backend. No database. No installation. Just open and use.
 > No backend. No database. No API.
 
 ---
-
-## 📂 Project Structure
