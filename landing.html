@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>B2B Ticket Manager - Streamline Support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1D4ED8',   // ← Restored to original blue-700
+                        success: '#10B981',   // ← Already correct
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .icon {
+            @apply w-8 h-8 text-primary;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 font-sans">
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center px-6 py-12 sm:py-16">
+        <div class="max-w-7xl mx-auto w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- Text -->
+                <div class="text-center lg:text-left space-y-6 fade-in">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                        Manage B2B Support <span class="text-primary">Effortlessly</span>
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
+                        Track, assign, and resolve customer tickets in real-time — all in one secure, intuitive
+                        dashboard.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="index.html"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition text-base sm:text-lg">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Launch App
+                        </a>
+                        <button onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})"
+                            class="px-6 py-3 bg-white text-primary font-semibold rounded-lg shadow hover:shadow-xl transition text-base border border-primary">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image -->
+                <div class="fade-in order-first lg:order-last">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                        alt="Dashboard Preview" class="rounded-2xl shadow-2xl w-full h-auto">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 sm:py-20 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 sm:mb-16 fade-in">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900">Everything You Need</h2>
+                <p class="mt-4 text-base sm:text-lg text-gray-600">Powerful tools to supercharge your support team</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Feature 1 -->
+                <div
+                    class="text-center p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg fade-in">
+                    <div class="inline-flex p-3 sm:p-4 bg-primary text-white rounded-full mb-4">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-semibold mb-3">Smart Tracking</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Create, assign, and monitor tickets with priority,
+                        status, and attachments.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div
+                    class="text-center p-6 sm:p-8 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-lg fade-in">
+                    <div class="inline-flex p-3 sm:p-4 bg-success text-white rounded-full mb-4">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4 0H9m8 0H7m10 0v-2a2 2 0 00-2-2H9a2 2 0 00-2 2v2" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-semibold mb-3">Real-Time Dashboard</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Live stats: Open, In Progress, Resolved — always know
+                        your team’s pulse.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div
+                    class="text-center p-6 sm:p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg fade-in">
+                    <div class="inline-flex p-3 sm:p-4 bg-purple-600 text-white rounded-full mb-4">
+                        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-semibold mb-3">Secure & Private</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Password reset, hashed credentials, client-side
+                        encryption. Your data stays yours.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-16 sm:py-20 px-6 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 sm:mb-16 fade-in">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900">How It Works</h2>
+                <p class="mt-4 text-base sm:text-lg text-gray-600">Get started in under 2 minutes</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div class="text-center fade-in">
+                    <div
+                        class="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-primary text-white rounded-full text-xl sm:text-2xl font-bold mb-4">
+                        1</div>
+                    <h3 class="text-lg sm:text-xl font-semibold mb-2">Register or Log In</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Create an account or log in securely. Forgot password?
+                        Reset in seconds.</p>
+                </div>
+                <div class="text-center fade-in">
+                    <div
+                        class="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-primary text-white rounded-full text-xl sm:text-2xl font-bold mb-4">
+                        2</div>
+                    <h3 class="text-lg sm:text-xl font-semibold mb-2">Create a Ticket</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Add title, customer, priority, attachments — assign to
+                        your team.</p>
+                </div>
+                <div class="text-center fade-in">
+                    <div
+                        class="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-success text-white rounded-full text-xl sm:text-2xl font-bold mb-4">
+                        3</div>
+                    <h3 class="text-lg sm:text-xl font-semibold mb-2">Track & Resolve</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Comment, update status, and close tickets — all in
+                        real time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-6 sm:py-8 px-6 bg-gray-900 text-gray-400 text-center text-xs sm:text-sm">
+        <p>&copy; 2025 B2B Ticket Manager. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>

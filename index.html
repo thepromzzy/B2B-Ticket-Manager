@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>B2B Ticket Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1D4ED8',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .badge {
+            @apply px-2 py-1 text-xs rounded-full font-medium;
+        }
+
+        .btn {
+            @apply px-4 py-2 rounded font-medium transition;
+        }
+
+        .btn-primary {
+            @apply bg-primary text-white hover:bg-blue-700;
+        }
+
+        .btn-sm {
+            @apply px-2 py-1 text-xs;
+        }
+
+        .toast {
+            @apply fixed bottom-4 left-4 right-4 md:left-auto md:right-4 p-4 rounded-lg shadow-lg text-white font-medium z-50;
+        }
+
+        .table-container {
+            @apply overflow-x-auto;
+        }
+
+        .table-mobile th,
+        .table-mobile td {
+            @apply text-xs px-2 py-3;
+        }
+
+        .table-mobile .actions {
+            @apply flex flex-col gap-1;
+        }
+
+        .fab {
+            @apply fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-blue-700 transition transform hover:scale-110 z-40;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+
+    <!-- Toast -->
+    <div id="toastContainer"></div>
+
+    <!-- Auth Screen -->
+    <div id="authScreen" class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-8">
+            <div class="text-center">
+                <h2 id="authTitle" class="text-3xl font-bold text-gray-900">Welcome Back</h2>
+                <p id="authSubtitle" class="mt-2 text-sm text-gray-600">Enter your password to continue</p>
+            </div>
+
+            <!-- Login -->
+            <div id="loginFields" class="space-y-5">
+                <input type="email" id="loginEmail" placeholder="Email Address" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                <input type="password" id="loginPassword" placeholder="Password" required autocomplete="off"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center text-sm text-gray-600">
+                        <input type="checkbox" id="rememberMe" class="mr-2 rounded">
+                        Remember my email
+                    </label>
+                    <button id="forgotLink" class="text-sm text-primary hover:underline font-medium">Forgot
+                        password?</button>
+                </div>
+            </div>
+
+            <!-- Register -->
+            <div id="registerFields" class="space-y-5 hidden">
+                <input type="text" id="regName" placeholder="Full Name"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                <input type="email" id="regEmail" placeholder="Email Address" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                <input type="password" id="regPassword" placeholder="Password (min 6 chars)" required minlength="6"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+            </div>
+
+            <!-- Forgot -->
+            <div id="forgotFields" class="space-y-5 hidden">
+                <p class="text-sm text-gray-600">Enter your email. A 6-digit code will be shown below (demo).</p>
+                <input type="email" id="forgotEmail" placeholder="Email Address" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                <div id="codeSection" class="hidden space-y-5">
+                    <input type="text" id="resetCode" placeholder="123456" maxlength="6"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                    <input type="password" id="newPassword" placeholder="New Password" minlength="6"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                </div>
+            </div>
+
+            <form id="authForm">
+                <button type="submit" id="authButton"
+                    class="w-full btn btn-primary py-3 text-base font-semibold shadow-md">Sign In</button>
+            </form>
+
+            <p class="text-center text-sm text-gray-600">
+                <span id="toggleText">Don't have an account?</span>
+                <button id="toggleAuth" class="font-medium text-primary hover:underline ml-1">Register</button>
+                <button id="backToLogin" class="hidden font-medium text-primary hover:underline ml-4">Back</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+        <header class="bg-white shadow-sm border-b sticky top-0 z-40">
+            <div class="px-4 py-3 flex justify-between items-center">
+                <h1 class="text-lg font-bold text-gray-800">B2B Tickets</h1>
+                <div class="flex items-center gap-2 text-sm">
+                    <span id="userDisplay" class="hidden sm:inline text-gray-600"></span>
+                    <button id="logoutBtn" class="text-red-600 hover:underline text-xs sm:text-sm">Logout</button>
+                    <button id="clearAll" class="text-gray-500 hover:underline text-xs">Clear</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-4 space-y-6">
+            <div id="stats" class="grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="search" id="searchBox" placeholder="Search..."
+                    class="flex-1 px-3 py-2 border rounded-lg text-sm">
+                <div class="flex gap-2">
+                    <select id="filterStatus" class="px-3 py-2 border rounded-lg text-xs sm:text-sm">
+                        <option value="">All</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <button id="newTicketBtn" class="btn btn-primary text-xs sm:text-sm whitespace-nowrap">+
+                        New</button>
+                </div>
+            </div>
+
+            <div id="mainContent">
+                <!-- Tickets Table -->
+                <div id="ticketsView" class="table-container bg-white shadow rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200 table-mobile">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                                <th
+                                    class="hidden sm:table-cell px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                    Customer</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Prio</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th
+                                    class="hidden md:table-cell px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                    Assignee</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Act</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsBody" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+
+                <!-- Form View -->
+                <div id="formView" class="hidden bg-white p-4 sm:p-6 rounded-lg shadow-lg space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 id="formTitle" class="text-lg font-bold">Create Ticket</h2>
+                        <button id="cancelForm" class="text-gray-500 hover:text-gray-700 text-xl">×</button>
+                    </div>
+                    <form id="ticketForm" class="space-y-4">
+                        <input type="hidden" id="editId">
+                        <input type="text" id="title" placeholder="Title" required
+                            class="w-full px-3 py-2 border rounded-lg text-sm">
+                        <textarea id="description" rows="3" placeholder="Description"
+                            class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="text" id="customer" placeholder="Customer" required
+                                class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <select id="priority" class="w-full px-3 py-2 border rounded-lg text-sm">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <select id="status" class="w-full px-3 py-2 border rounded-lg text-sm">
+                                <option value="open">Open</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                            <select id="assignee" class="w-full px-3 py-2 border rounded-lg text-sm">
+                                <option>Unassigned</option>
+                                <option>John Doe</option>
+                                <option>Jane Smith</option>
+                                <option>Mike Chen</option>
+                            </select>
+                        </div>
+                        <input type="file" id="attachments" multiple class="w-full text-sm">
+                        <div id="preview" class="text-xs space-y-1"></div>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" id="cancelFormBtn"
+                                class="btn bg-gray-200 text-gray-800">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Detail View -->
+                <div id="detailView" class="hidden bg-white p-4 sm:p-6 rounded-lg shadow-lg space-y-4 text-sm">
+                    <div class="flex justify-between items-start">
+                        <h2 id="detailTitle" class="text-lg font-bold"></h2>
+                        <button id="backToList" class="text-gray-500 hover:text-gray-700">Back</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div><strong>Cust:</strong> <span id="detailCustomer"></span></div>
+                        <div><strong>Prio:</strong> <span id="detailPriority"></span></div>
+                        <div><strong>Status:</strong> <span id="detailStatus"></span></div>
+                        <div><strong>Assign:</strong> <span id="detailAssignee"></span></div>
+                    </div>
+                    <div><strong>Desc:</strong>
+                        <p id="detailDescription" class="mt-1"></p>
+                    </div>
+                    <div id="detailAttachments"></div>
+                    <div>
+                        <h3 class="font-semibold mt-3 mb-1 text-xs">Comments</h3>
+                        <div id="commentsList" class="space-y-2"></div>
+                        <textarea id="newComment" placeholder="Add comment..."
+                            class="mt-2 w-full px-2 py-1 border rounded text-xs"></textarea>
+                        <button id="addComment" class="mt-1 btn btn-primary btn-sm">Post</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAB (extra for mobile) -->
+            <button id="fabNew" class="fab">+</button>
+        </div>
+    </div>
+
+    <script>
+        // === TOAST ===
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type === 'success' ? 'bg-success' : 'bg-danger'}`;
+            t.textContent = msg;
+            document.getElementById('toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        // === STORAGE ===
+        const USER_KEY = 'b2b_user', REMEMBER_KEY = 'b2b_remember', TICKETS_KEY = 'b2b_tickets', RESET_CODES_KEY = 'b2b_reset_codes';
+        let currentUser = JSON.parse(localStorage.getItem(USER_KEY));
+        let tickets = JSON.parse(localStorage.getItem(TICKETS_KEY)) || [];
+
+        async function hash(p) {
+            const enc = new TextEncoder();
+            const data = enc.encode(p);
+            const hashBuf = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // === UI ELEMENTS ===
+        const authScreen = document.getElementById('authScreen');
+        const dashboard = document.getElementById('dashboard');
+        const loginFields = document.getElementById('loginFields');
+        const registerFields = document.getElementById('registerFields');
+        const forgotFields = document.getElementById('forgotFields');
+        const codeSection = document.getElementById('codeSection');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const backToLogin = document.getElementById('backToLogin');
+        const forgotLink = document.getElementById('forgotLink');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const authButton = document.getElementById('authButton');
+        const toggleText = document.getElementById('toggleText');
+        const rememberMe = document.getElementById('rememberMe');
+        const ticketsView = document.getElementById('ticketsView');
+        const formView = document.getElementById('formView');
+        const detailView = document.getElementById('detailView');
+        const newTicketBtn = document.getElementById('newTicketBtn');
+        const fabNew = document.getElementById('fabNew');
+        const cancelForm = document.getElementById('cancelForm');
+        const cancelFormBtn = document.getElementById('cancelFormBtn');
+        const ticketForm = document.getElementById('ticketForm');
+        const searchBox = document.getElementById('searchBox');
+        const filterStatus = document.getElementById('filterStatus');
+
+        // === AUTH MODES ===
+        function showLoginMode() {
+            authTitle.textContent = 'Welcome Back';
+            authSubtitle.textContent = 'Enter your password to continue';
+            authButton.textContent = 'Sign In';
+            toggleText.textContent = "Don't have an account?";
+            toggleAuth.textContent = 'Register';
+            backToLogin.classList.add('hidden');
+            loginFields.classList.remove('hidden');
+            registerFields.classList.add('hidden');
+            forgotFields.classList.add('hidden');
+            codeSection.classList.add('hidden');
+        }
+
+        function showRegisterMode() {
+            authTitle.textContent = 'Create Account';
+            authSubtitle.textContent = 'Join your team';
+            authButton.textContent = 'Register';
+            toggleText.textContent = 'Already have an account?';
+            toggleAuth.textContent = 'Sign In';
+            backToLogin.classList.add('hidden');
+            registerFields.classList.remove('hidden');
+            loginFields.classList.add('hidden');
+            forgotFields.classList.add('hidden');
+        }
+
+        function showForgotMode() {
+            authTitle.textContent = 'Reset Password';
+            authSubtitle.textContent = 'Code shown below (demo)';
+            authButton.textContent = 'Send Code';
+            toggleText.textContent = '';
+            toggleAuth.classList.add('hidden');
+            backToLogin.classList.remove('hidden');
+            forgotFields.classList.remove('hidden');
+            loginFields.classList.add('hidden');
+            registerFields.classList.add('hidden');
+            codeSection.classList.add('hidden');
+        }
+
+        toggleAuth.onclick = () => registerFields.classList.contains('hidden') ? showRegisterMode() : showLoginMode();
+        backToLogin.onclick = showLoginMode;
+        forgotLink.onclick = showForgotMode;
+
+        // === AUTH SUBMIT ===
+        document.getElementById('authForm').onsubmit = async e => {
+            e.preventDefault();
+            const mode = loginFields.classList.contains('hidden') ? (registerFields.classList.contains('hidden') ? 'forgot' : 'register') : 'login';
+
+            if (mode === 'register') {
+                const name = document.getElementById('regName').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                const password = document.getElementById('regPassword').value;
+                if (!name || !email || password.length < 6) return showToast('Invalid input', 'danger');
+                const hashVal = await hash(password);
+                const users = JSON.parse(localStorage.getItem('b2b_users') || '[]');
+                if (users.some(u => u.email === email)) return showToast('Email exists', 'danger');
+                users.push({ name, email, password: hashVal });
+                localStorage.setItem('b2b_users', JSON.stringify(users));
+                showToast('Account created!', 'success');
+                showLoginMode();
+                document.getElementById('loginEmail').value = email;
+                return;
+            }
+
+            if (mode === 'login') {
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                if (!email || !password) return showToast('Required', 'danger');
+                const hashVal = await hash(password);
+                const users = JSON.parse(localStorage.getItem('b2b_users') || '[]');
+                const user = users.find(u => u.email === email && u.password === hashVal);
+                if (!user) return showToast('Invalid credentials', 'danger');
+                currentUser = { name: user.name, email };
+                localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                if (rememberMe.checked) localStorage.setItem(REMEMBER_KEY, email);
+                else localStorage.removeItem(REMEMBER_KEY);
+                showDashboard();
+                return;
+            }
+
+            if (mode === 'forgot') {
+                if (!codeSection.classList.contains('hidden')) {
+                    const email = document.getElementById('forgotEmail').value.trim();
+                    const code = document.getElementById('resetCode').value.trim();
+                    const newPass = document.getElementById('newPassword').value;
+                    if (!email || !code || newPass.length < 6) return showToast('Invalid', 'danger');
+                    const resetCodes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || '{}');
+                    const stored = resetCodes[email];
+                    if (!stored || stored.code !== code || Date.now() > stored.expiry) return showToast('Invalid/expired code', 'danger');
+                    const hashVal = await hash(newPass);
+                    const users = JSON.parse(localStorage.getItem('b2b_users') || '[]');
+                    const idx = users.findIndex(u => u.email === email);
+                    if (idx === -1) return showToast('User not found', 'danger');
+                    users[idx].password = hashVal;
+                    localStorage.setItem('b2b_users', JSON.stringify(users));
+                    delete resetCodes[email];
+                    localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+                    showToast('Password reset!', 'success');
+                    showLoginMode();
+                    document.getElementById('loginEmail').value = email;
+                    return;
+                }
+                const email = document.getElementById('forgotEmail').value.trim();
+                if (!email) return showToast('Enter email', 'danger');
+                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                const resetCodes = JSON.parse(localStorage.getItem(RESET_CODES_KEY) || '{}');
+                resetCodes[email] = { code, expiry: Date.now() + 600000 };
+                localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetCodes));
+                authButton.textContent = 'Reset Password';
+                codeSection.classList.remove('hidden');
+                showToast(`Code: ${code}`, 'success');
+            }
+        };
+
+        document.getElementById('logoutBtn').onclick = () => {
+            localStorage.removeItem(USER_KEY);
+            currentUser = null;
+            showToast('Logged out', 'success');
+            showAuth();
+        };
+
+        document.getElementById('clearAll').onclick = () => {
+            if (confirm('Delete all tickets?')) {
+                tickets = [];
+                localStorage.setItem(TICKETS_KEY, '[]');
+                renderAll();
+                showToast('All tickets cleared', 'success');
+            }
+        };
+
+        function showAuth() {
+            authScreen.classList.remove('hidden');
+            dashboard.classList.add('hidden');
+            showLoginMode();
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function showDashboard() {
+            authScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            document.getElementById('userDisplay').textContent = `Hi, ${currentUser.name}`;
+            showView('tickets');
+            renderAll();
+        }
+
+        if (currentUser) showDashboard();
+        else showAuth();
+
+        // === TICKET LOGIC ===
+        let currentEditId = null;
+        let currentDetailId = null;
+
+        function showView(v) {
+            [ticketsView, formView, detailView].forEach(el => el.classList.add('hidden'));
+            if (v === 'tickets') ticketsView.classList.remove('hidden');
+            if (v === 'form') formView.classList.remove('hidden');
+            if (v === 'detail') detailView.classList.remove('hidden');
+        }
+
+        function priorityBadge(p) {
+            const map = { low: 'bg-gray-200 text-gray-800', medium: 'bg-blue-200 text-blue-800', high: 'bg-orange-200 text-orange-800', critical: 'bg-red-200 text-red-800' };
+            return `<span class="badge ${map[p]}">${p.charAt(0).toUpperCase() + p.slice(1)}</span>`;
+        }
+
+        function statusBadge(s) {
+            const map = { open: 'bg-green-100 text-green-800', 'in-progress': 'bg-yellow-100 text-yellow-800', resolved: 'bg-purple-100 text-purple-800', closed: 'bg-gray-100 text-gray-800' };
+            const label = s === 'in-progress' ? 'In Prog' : s.charAt(0).toUpperCase() + s.slice(1);
+            return `<span class="badge ${map[s]}">${label}</span>`;
+        }
+
+        function renderStats() {
+            const stats = {
+                open: tickets.filter(t => t.status === 'open').length,
+                inProgress: tickets.filter(t => t.status === 'in-progress').length,
+                resolved: tickets.filter(t => t.status === 'resolved').length,
+                total: tickets.length
+            };
+            document.getElementById('stats').innerHTML = `
+        <div class="p-3 bg-white rounded-lg shadow text-center text-xs"><div class="text-xl font-bold text-green-600">${stats.open}</div><div>Open</div></div>
+        <div class="p-3 bg-white rounded-lg shadow text-center text-xs"><div class="text-xl font-bold text-yellow-600">${stats.inProgress}</div><div>In Prog</div></div>
+        <div class="p-3 bg-white rounded-lg shadow text-center text-xs"><div class="text-xl font-bold text-purple-600">${stats.resolved}</div><div>Resolved</div></div>
+        <div class="p-3 bg-white rounded-lg shadow text-center text-xs"><div class="text-xl font-bold">${stats.total}</div><div>Total</div></div>
+      `;
+        }
+
+        function renderTable(filtered = tickets) {
+            document.getElementById('ticketsBody').innerHTML = filtered.map(t => `
+        <tr>
+          <td class="font-medium">#${t.id}</td>
+          <td class="cursor-pointer text-primary hover:underline" onclick="openDetail(${t.id})">${t.title}</td>
+          <td class="hidden sm:table-cell">${t.customer}</td>
+          <td>${priorityBadge(t.priority)}</td>
+          <td>${statusBadge(t.status)}</td>
+          <td class="hidden md:table-cell">${t.assignee}</td>
+          <td class="actions">
+            <button onclick="editTicket(${t.id})" class="text-blue-600 hover:underline text-xs">Edit</button>
+            <button onclick="deleteTicket(${t.id})" class="text-red-600 hover:underline text-xs">Del</button>
+          </td>
+        </tr>
+      `).join('');
+        }
+
+        function filterTickets() {
+            let filtered = tickets;
+            const term = searchBox.value.toLowerCase();
+            const status = filterStatus.value;
+            if (term) filtered = filtered.filter(t => t.title.toLowerCase().includes(term) || t.customer.toLowerCase().includes(term));
+            if (status) filtered = filtered.filter(t => t.status === status);
+            renderTable(filtered);
+        }
+
+        searchBox.oninput = filterStatus.onchange = filterTickets;
+
+        function renderAll() {
+            renderStats();
+            filterTickets();
+        }
+
+        // === NEW TICKET BUTTON (FIXED) ===
+        newTicketBtn.onclick = fabNew.onclick = () => {
+            currentEditId = null;
+            document.getElementById('formTitle').textContent = 'Create Ticket';
+            ticketForm.reset();
+            document.getElementById('preview').innerHTML = '';
+            showView('form');
+        };
+
+        cancelForm.onclick = cancelFormBtn.onclick = () => showView('tickets');
+        document.getElementById('backToList').onclick = () => showView('tickets');
+
+        // === SAVE TICKET ===
+        ticketForm.onsubmit = async e => {
+            e.preventDefault();
+            const files = document.getElementById('attachments').files;
+            const atts = [];
+            for (const file of files) {
+                const data = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(file);
+                });
+                atts.push({ name: file.name, data });
+            }
+
+            const ticket = {
+                id: currentEditId || (tickets.length ? Math.max(...tickets.map(t => t.id)) + 1 : 1),
+                title: document.getElementById('title').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                customer: document.getElementById('customer').value.trim(),
+                priority: document.getElementById('priority').value,
+                status: document.getElementById('status').value,
+                assignee: document.getElementById('assignee').value,
+                attachments: currentEditId ? tickets.find(t => t.id === currentEditId).attachments : [],
+                comments: currentEditId ? tickets.find(t => t.id === currentEditId).comments : [],
+                createdAt: currentEditId ? tickets.find(t => t.id === currentEditId).createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            ticket.attachments.push(...atts);
+
+            if (currentEditId) {
+                const idx = tickets.findIndex(t => t.id === currentEditId);
+                tickets[idx] = ticket;
+            } else {
+                tickets.push(ticket);
+            }
+
+            localStorage.setItem(TICKETS_KEY, JSON.stringify(tickets));
+            showToast(currentEditId ? 'Updated!' : 'Created!', 'success');
+            showView('tickets');
+            renderAll();
+        };
+
+        // === EDIT / DELETE / DETAIL ===
+        window.editTicket = id => {
+            const t = tickets.find(x => x.id === id);
+            currentEditId = id;
+            document.getElementById('formTitle').textContent = 'Edit Ticket';
+            document.getElementById('title').value = t.title;
+            document.getElementById('description').value = t.description;
+            document.getElementById('customer').value = t.customer;
+            document.getElementById('priority').value = t.priority;
+            document.getElementById('status').value = t.status;
+            document.getElementById('assignee').value = t.assignee;
+            document.getElementById('preview').innerHTML = t.attachments.map(a => `<div class="text-xs">${a.name}</div>`).join('');
+            showView('form');
+        };
+
+        window.deleteTicket = id => {
+            if (confirm('Delete?')) {
+                tickets = tickets.filter(t => t.id !== id);
+                localStorage.setItem(TICKETS_KEY, JSON.stringify(tickets));
+                showToast('Deleted', 'success');
+                renderAll();
+            }
+        };
+
+        window.openDetail = id => {
+            const t = tickets.find(x => x.id === id);
+            currentDetailId = id;
+            document.getElementById('detailTitle').textContent = t.title;
+            document.getElementById('detailCustomer').textContent = t.customer;
+            document.getElementById('detailPriority').innerHTML = priorityBadge(t.priority);
+            document.getElementById('detailStatus').innerHTML = statusBadge(t.status);
+            document.getElementById('detailAssignee').textContent = t.assignee;
+            document.getElementById('detailDescription').textContent = t.description;
+            const atts = document.getElementById('detailAttachments');
+            atts.innerHTML = t.attachments.length ? '<strong class="text-xs">Attachments:</strong>' : '';
+            atts.innerHTML += t.attachments.map(a => `
+        <div class="mt-1 text-xs">
+          ${a.data.startsWith('data:image') ? `<img src="${a.data}" class="h-16 rounded">` : `<a href="${a.data}" download="${a.name}" class="text-primary hover:underline">${a.name}</a>`}
+        </div>
+      `).join('');
+            document.getElementById('commentsList').innerHTML = (t.comments || []).map(c => `
+        <div class="p-2 bg-gray-50 rounded text-xs">
+          <div class="font-medium">${c.author}</div>
+          <div>${c.text}</div>
+          <div class="text-xs text-gray-500">${new Date(c.time).toLocaleString()}</div>
+        </div>
+      `).join('');
+            showView('detail');
+        };
+
+        document.getElementById('addComment').onclick = () => {
+            const txt = document.getElementById('newComment').value.trim();
+            if (!txt) return;
+            const t = tickets.find(x => x.id === currentDetailId);
+            t.comments = t.comments || [];
+            t.comments.push({ author: currentUser.name, text: txt, time: new Date().toISOString() });
+            localStorage.setItem(TICKETS_KEY, JSON.stringify(tickets));
+            document.getElementById('newComment').value = '';
+            openDetail(currentDetailId);
+        };
+
+        // === INIT ===
+        window.addEventListener('load', () => {
+            if (currentUser) showDashboard();
+        });
+    </script>
+</body>
+
+</html>
